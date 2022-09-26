@@ -58,8 +58,8 @@
         <main class="mb-auto w-full h-screen">
             {% block body %}{% endblock %}
         </main>
-        <footer class="sticky shadow-md bottom-0 bg-main z-50 rounded-t-md justify-center flex flex-row text-white font-light px-4 py-2 space-x-3">
-            <a class="flex flex-col items-center justify-center" href="{{ url_for('statistics') }}">
+        <footer class="sticky bottom-0 bg-main z-50 rounded-t-md justify-center flex flex-row text-white font-light px-4 py-2 space-x-3">
+            <a class="flex flex-col items-center justify-center" href="{{ url_for('index') }}">
                 {% if request.path == '/' %}
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path
