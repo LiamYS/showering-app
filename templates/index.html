@@ -5,21 +5,94 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex flex-col py-3 px-6 space-y-2">
-    <div class="px-2 py-1.5">
-        Information section, for now this will contain placeholder text to see how the elements wrap up on the page.
-        We can put a description about our application here, although it is not necessary, it is just a temporary layout.
+<div class="flex flex-col py-1 space-y-1.5">
+    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+        <div class="flex justify-between">
+            <span>Overview</span>
+            <a class="flex items-center text-main-light text-sm space-x-1" href="{{ url_for('statistics') }}">
+                <span>Details</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd"
+                        d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z"
+                        clip-rule="evenodd" />
+                </svg>
+            </a>
+        </div>
+        <div class="flex justify-around px-4 pb-3 text-sm border-b">
+            <div class="flex flex-col items-center">
+                <span><span class="text-base font-semibold">13.4</span>min</span>
+                <span>Showered today</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span><span class="text-base font-bold">35</span>&#8451</span>
+                <span>Average today</span>
+            </div>
+        </div>
+        <div class="flex justify-between px-4 py-1 text-sm">
+            <div class="flex flex-col items-center">
+                <span><span class="text-base font-semibold">8.5</span>min</span>
+                <span>Average yearly</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span><span class="text-base font-semibold">34.2</span>&#8451</span>
+                <span>Average yearly</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span><span class="text-base font-semibold">8.5</span>m<sup>3</sup></span>
+                <span>Water saved</span>
+            </div>
+        </div>
     </div>
-    <!-- <div class="flex flex-col space-y-3.5 shadow-sm">
-        <a class="px-2 py-1.5 bg-main rounded-full text-center text-white max-w">
-            Statistics
-        </a>
-        <a class="px-2 py-1.5 bg-main rounded-full text-center text-white max-w">
-            Feedback
-        </a>
-        <a class="px-2 py-1.5 bg-main rounded-full text-center text-white max-w">
-            About us
-        </a>
-    </div> -->
+    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+        <span>Weekly shower time</span>
+        <div>
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+    ];
+
+    const data = {
+        labels: labels,
+        datasets: [{
+            label: 'Duration',
+            backgroundColor: 'rgb(81, 172, 197, 0.3)',
+            borderColor: 'rgb(44, 95, 120)',
+            borderWidth: 1,
+            data: [8,10,8,6,12,6,8],
+        }]
+    };
+
+    const config = {
+        type: 'bar',
+        data: data,
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        beforeLabel: function(tooltipItem) {
+                            return 'Minutes';
+                        }
+                    }
+                }
+            }
+        }
+    };
+</script>
+<script>
+    const myChart = new Chart(
+        document.getElementById('myChart'),
+        config
+    );
+</script>
 {% endblock %}
