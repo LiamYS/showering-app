@@ -1,7 +1,7 @@
 {% extends 'app.html' %}
 
 {% block head %}
-<title>Showering App - Index</title>
+<title>Showering App - Home</title>
 {% endblock %}
 
 {% block body %}
@@ -31,11 +31,11 @@
         <div class="flex justify-between px-4 py-1 text-sm">
             <div class="flex flex-col items-center">
                 <span><span class="text-base font-semibold">8.5</span>min</span>
-                <span>Average yearly</span>
+                <span>Average all-time</span>
             </div>
             <div class="flex flex-col items-center">
                 <span><span class="text-base font-semibold">34.2</span>&#8451</span>
-                <span>Average yearly</span>
+                <span>Average all-time</span>
             </div>
             <div class="flex flex-col items-center">
                 <span><span class="text-base font-semibold">8.5</span>m<sup>3</sup></span>
@@ -44,10 +44,13 @@
         </div>
     </div>
     <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
-        <span>Weekly shower time</span>
+        <span>Weekly duration</span>
         <div>
             <canvas id="myChart"></canvas>
         </div>
+    </div>
+    <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
+        <span>Did you know that the average shower is around 13 minutes long.</span>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -74,7 +77,7 @@
     };
 
     const config = {
-        type: 'bar',
+        type: 'line',
         data: data,
         options: {
             plugins: {
