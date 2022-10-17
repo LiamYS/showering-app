@@ -18,11 +18,23 @@
             <canvas id="LineChart"></canvas>
         </div>
     </div>
+    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+        <span>Weekly average Duration</span>
+        <div>
+            <canvas id="WeeklyDuraChart"></canvas>
+        </div>
+    </div>
+    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+        <span>Weekly average temperature</span>
+        <div>
+            <canvas id="WeeklyTempChart"></canvas>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const labels = [
+    const labelsMonthly = [
         'January',
         'February',
         'March',
@@ -36,9 +48,18 @@
         'November',
         'December'
     ];
+    const labelsWeekly = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+    ];
 
     const data = {
-        labels: labels,
+        labels: labelsMonthly,
         datasets: [{
             label: 'Duration in minutes',
             backgroundColor: [
@@ -77,14 +98,17 @@
     };
 
     const dataSecond = {
-        labels: labels,
+        labels: labelsMonthly,
         datasets: [{
-            label: 'Test',
-            data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+            label: 'Temperature in Celsius',
+            backgroundColor: ['rgba(54, 162, 235, 1)',],
+            borderColor: ['rgba(54, 162, 235, 1)',],
+            borderWidth: 1,
+            data: [37, 36, 34, 35, 32, 30, 33, 32, 28, 34, 31, 30]
         }]
     }
 
-    const config = {
+    const configMonthlyDuration = {
         type: 'bar',
         data: data,
         options: {
@@ -103,15 +127,101 @@
         type: 'line',
         data: dataSecond,
     }
+
+    const dataWeeklyDura = {
+        labels: labelsWeekly,
+        datasets: [{
+            label: 'Temperature in Celsius',
+            backgroundColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)'
+            ],
+            borderWidth: 1,
+            data: [37, 36, 34, 35, 32, 30, 33]
+        }]
+    }
+
+    const configWeekDura = {
+        type: 'bar',
+        data: data,
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        beforeLabel: function(tooltipItem) {
+                            return 'Minutes';
+                        }
+                    }
+                }
+            }
+        }
+    };
+    const configThird = {
+        type: 'line',
+        data: dataWeeklyDura,
+    }
+    const dataWeeklyTemp = {
+        labels: labelsWeekly,
+        datasets: [{
+            label: 'Test',
+            data: [34, 34, 32, 36, 31, 29, 32]
+        }]
+    }
+
+    const configWeeklyTemperature = {
+        type: 'bar',
+        data: data,
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        beforeLabel: function(tooltipItem) {
+                            return 'Minutes';
+                        }
+                    }
+                }
+            }
+        }
+    };
+    const configFourth = {
+        type: 'line',
+        data: dataWeeklyTemp,
+    }
 </script>
 <script>
     const myChart = new Chart(
         document.getElementById('myChart'),
-        config
+        configMonthlyDuration
     );
-    const secondChart = new Chart(
+    const MonthlyTempChart = new Chart(
         document.getElementById('LineChart'),
         configSecond
     );
+    const WeeklyDuraChart = new Chart(
+        document.getElementById('WeeklyDuraChart'),
+        configWeekDura
+);
+    const WeeklyTempChart = new Chart(
+        document.getElementById('WeeklyTempChart'),
+        configWeeklyTemperature
+);
 </script>
+
+
 {% endblock %}
+
+
