@@ -1,45 +1,47 @@
 import mysql.connector
-
-mydb = mysql.connector.connect(host='localhost', user='root', password='', database='showeringapp')
-
+CONFIG = {
+    'host':'localhost',
+    'user':'root',
+    'password':'',
+    'database':'showering-app',
+    'autocommit':True
+}
+mydb = mysql.connector.connect(**CONFIG)
 if mydb.is_connected():
     print("Connected")
 
 mycursor = mydb.cursor()
 
-mycursor.execute("SELECT * FROM all_data")
-print(type(mycursor.fetchall()))
+mycursor.execute("SELECT * FROM raw_data")
+print(mycursor.fetchall())
 
-QUERY_CLEAN = """
-    DROP TABLE IF EXISTS cleaned_data;
-    CREATE TABLE cleaned_data;
-    SELECT * AS data
-    FROM all_data
-    WHERE data IS NOT NULL;
+QUERY_COPY = """
+    CREATE TABLE IF NOT EXISTS cleaned_data AS
+    SELECT session_id, temperature, duration, date
+    FROM raw_data;
     """
 
-QUERY_CREATE_TEMPERATURE = """
-    DROP TABLE IF EXISTS temperatures;
-    CREATE TABLE temperatures;
-    SELECT user_id, temperature
-    FROM cleaned_data;
-"""
-QUERY_CREATE_TIME = """
-    DROP TABLE IF EXISTS times;
-    CREATE TABLE times;
-    SELECT user_id, shower_time
-    FROM cleaned_data;
+mycursor.execute(QUERY_COPY)
+mycursor.close()
+
+mydb = mysql.connector.connect(**CONFIG)
+mycursor = mydb.cursor()
+
+QUERY_REMOVE_EMPTY = """
+    DELETE FROM cleaned_data
+    WHERE session_id = '' OR temperature = '' OR duration = '' OR date = '';
 """
 
-mycursor.execute(QUERY_CLEAN)
-mydb.close()
+mycursor.execute(QUERY_REMOVE_EMPTY)
+mycursor.close()
 
-mydb = mysql.connector.connect(host='localhost', user='root', password='', database='showeringapp')
+mydb = mysql.connector.connect(**CONFIG)
 mycursor = mydb.cursor()
-mycursor.execute(QUERY_CREATE_TEMPERATURE)
-mydb.close()
 
-mydb = mysql.connector.connect(host='localhost', user='root', password='', database='showeringapp')
-mycursor = mydb.cursor()
-mycursor.execute(QUERY_CREATE_TIME)
-mydb.close()
+QUERY_REMOVE_DUPLICATE = """
+    DELETE n1 FROM cleaned_data n1, cleaned_data n2 
+    WHERE n1.session_id = n2.session_id AND n1.date > n2.date;
+"""
+
+mycursor.execute(QUERY_REMOVE_DUPLICATE)
+mycursor.close()
