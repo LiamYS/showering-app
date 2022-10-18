@@ -47,7 +47,7 @@ def data():
     date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     # Data cleaning
-
+    exec(open('Data.py').read())
 
     # Insert data into the database
     cursor = mysql.connection.cursor()
@@ -57,7 +57,7 @@ def data():
     
     # Return response
     return '''
-Succesfully received data.
+Successfully received data.
 Average temperature of session is: {}C
 The session took {} minutes
 The date of the session is: {}'''.format(temperature, duration, date)
