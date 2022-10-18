@@ -5,16 +5,17 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex flex-col py-3 px-6 space-y-2">
+<div class="flex flex-col py-3 space-y-2">
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
         <span>If you shower a minute less every day for a year, you will save around 1400 liters of water a year.
         </span>
     </div>
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
-        <span>Your current shower time is 8.5 min, which is 0.5 higher than the world average. (Could also be in
-            the case of lower)            
+        <span>Your current shower time is 8.5 min, which is 0.6 lower than the world average.     
         </span>
     </div>
+// The 8.5 min and 0.6 should change to your avg shower time of all time or other scale compared to 9.1 minutes
+// Also lower should me made changeable in case it is higher than average or equal to average.
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
         <span>You use around 9.5 liters of water each minute you shower.
         </span>
@@ -29,15 +30,16 @@
         </span>
     </div>
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
-        <span>Your showertime is … minutes lower/higher compared to last week.           
+        <span>Your showertime is … minutes lower/higher/equal compared to last week.           
         </span>
     </div>
+    // Show the change in showertime of this week compared to last week and be able to change lower/higher/equal
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
         <span>Your shower temperature is … lower/higher compared to last week.    
         </span>
     </div>
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
-        <span>Did you know that the average shower is around 13 minutes long.   
+        <span>Did you know that the average shower is around 9.1 minutes long.   
         </span>
     </div>
 </div>

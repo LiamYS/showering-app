@@ -44,58 +44,78 @@
         </div>
     </div>
     <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
-        <span>Weekly duration</span>
+        <span>Monthly duration shower</span>
         <div>
-            <canvas id="myChart"></canvas>
+            <canvas id="WeeklyDuraChart"></canvas>
+        </div>
+    </div>
+    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+        <span>Monthly average temperature</span>
+        <div>
+            <canvas id="WeeklyTempChart"></canvas>
         </div>
     </div>
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
-        <span>Did you know that the average shower is around 13 minutes long.</span>
+        <span>Your current shower time is 8.5 min, which is 0.6 lower than the world average.</span>
     </div>
 </div>
+        // The 8.5 min and 0.6 should change to your avg shower time of all time or other scale compared to 9.1 minutes
+        // Also lower should me made changeable in case it is higher than average or equal to average.
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const labels = [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
+    const labelsWeekly = [
+        '12 Oct',
+        '13 Oct',
+        '14 Oct',
+        '15 Oct',
+        '16 Oct',
+        '17 Oct',
+        '18 Oct'
     ];
 
-    const data = {
-        labels: labels,
+    const dataWeeklyDura = {
+        labels: labelsWeekly,
         datasets: [{
-            label: 'Duration',
-            backgroundColor: 'rgb(81, 172, 197, 0.3)',
-            borderColor: 'rgb(44, 95, 120)',
+            label: 'Duration in minutes',
+            backgroundColor: ['rgba(54, 162, 235, 1)'],
+            borderColor: ['rgba(54, 162, 235, 1)'],
             borderWidth: 1,
-            data: [8,10,8,6,12,6,8],
+            data: [12, 6, 17, 10, 8, 11, 7]
+            // Data should be given for total duration of showering for each specific day, given with the order of 
+            // labelsWeekly described above. (Line chart)
         }]
-    };
+    }
 
-    const config = {
+    const dataWeeklyTemp = {
+        labels: labelsWeekly,
+        datasets: [{
+            label: 'Temperature in Celsius',
+            backgroundColor: ['rgba(54, 162, 235, 1)'],
+            borderColor: ['rgba(54, 162, 235, 1)'],
+            borderWidth: 1,
+            data: [34, 34, 32, 36, 31, 29, 32]
+            //Data should be given for Avg shower temperature for each specific day, given with the order of 
+            // labelsWeekly described above. (Line chart)
+        }]
+    }
+
+    const configWeeklyDura = {
         type: 'line',
-        data: data,
-        options: {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        beforeLabel: function(tooltipItem) {
-                            return 'Minutes';
-                        }
-                    }
-                }
-            }
-        }
-    };
+        data: dataWeeklyDura,
+    }
+    const configWeeklyTemp = {
+        type: 'line',
+        data: dataWeeklyTemp
+    }
 </script>
 <script>
-    const myChart = new Chart(
-        document.getElementById('myChart'),
-        config
+    const WeeklyDuraChart = new Chart(
+        document.getElementById('WeeklyDuraChart'),
+        configWeeklyDura
     );
+    const WeeklyTempChart = new Chart(
+        document.getElementById('WeeklyTempChart'),
+        configWeeklyTemp
+    )
 </script>
 {% endblock %}
