@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from flask_mysqldb import MySQL
 from datetime import datetime
+import helpers
 
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = 'localhost'
@@ -17,18 +18,48 @@ def index():
     data = cursor.fetchall()
     mysql.connection.commit()
     cursor.close()
-    return render_template('index.html', data=data)
+    # Generate comparison string for template
+    if 9.1 - float(data[0][1]) > 0:
+        comparison_string = "Your current shower time is {} min, which is {} min lower than the world average.".format(data[0][1], 9.1 - float(data[0][1]))
+    else:
+        comparison_string = "Your current shower time is {} min, which is {} min higher than the world average.".format(data[0][1], float(data[0][1]) - 9.1)
+    # Render the template
+    return render_template('index.html', data=data, comparison_string=comparison_string)
 
-@app.route('/statistics')
-def statistics():
-    # Query the database
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM raw_data")
-    data = cursor.fetchall()
-    mysql.connection.commit()
-    cursor.close()
-    # Return view rendering the data
-    return render_template('statistics.html', data=data)
+@app.route('/statistics/', defaults={'timeframe': 'days', 'period': helpers.get_date_range('days')})
+@app.route('/statistics/timeframe/<string:timeframe>/period/<period>')
+def statistics(timeframe, period):
+    # Query the database on specific timeframes
+    if timeframe == 'days':
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_now()))
+        data = cursor.fetchall()
+        mysql.connection.commit()
+        cursor.close()
+    elif timeframe == 'weeks':
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_now()))
+        data = cursor.fetchall()
+        mysql.connection.commit()
+        cursor.close()
+    elif timeframe == 'months':
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('months'), helpers.get_date_now()))
+        data = cursor.fetchall()
+        mysql.connection.commit()
+        cursor.close()
+    elif timeframe == 'years':
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('years'), helpers.get_date_now()))
+        data = cursor.fetchall()
+        mysql.connection.commit()
+        cursor.close()
+    # Return view rendering the data and return 404 if timeframe is invalid
+    test = "SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_now())
+    if timeframe == 'days' or timeframe == 'weeks' or timeframe == 'months' or timeframe == 'years':
+        return render_template('statistics.html', test=test, timeframe=timeframe, period=period, get_date_range=helpers.get_date_range, data=data, strftime=datetime.strftime)
+    else:
+        return render_template('404.html'), 404
 
 @app.route('/feedback')
 def feedback():
@@ -37,6 +68,10 @@ def feedback():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 @app.route('/api/data', methods=['POST'])
 def data():

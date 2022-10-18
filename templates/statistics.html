@@ -7,10 +7,10 @@
 {% block body %}
 <div class="flex flex-col py-1 space-y-1.5">
     <div class="flex flex-row border py-2 text-sm justify-around rounded-sm bg-white">
-        <a href="#" class="">1d</a>
-        <a href="#" class="">7d</a>
-        <a href="#" class="">4w</a>
-        <a href="#" class="">1y</a>
+        <a href="{{ url_for('statistics', timeframe='days', period=get_date_range('days')) }}" {% if timeframe == 'days' %} class="font-bold" {% endif %}>1d</a>
+        <a href="{{ url_for('statistics', timeframe='weeks', period=get_date_range('weeks')) }}" {% if timeframe == 'weeks' %} class="font-bold" {% endif %}>7d</a>
+        <a href="{{ url_for('statistics', timeframe='months', period=get_date_range('months')) }}" {% if timeframe == 'months' %} class="font-bold" {% endif %}>4w</a>
+        <a href="{{ url_for('statistics', timeframe='years', period=get_date_range('years')) }}" {% if timeframe == 'years' %} class="font-bold" {% endif %}>1y</a>
     </div>
     <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
         <span>This period</span>
@@ -25,428 +25,131 @@
             </div>
         </div>
     </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
-        <span>Monthly duration shower</span>
-        <div>
-            <canvas id="myChart"></canvas>
+    {% if timeframe == 'days' %}
+    {% elif timeframe == 'weeks' %}
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last 7 days average duration</span>
+            <div>
+                <canvas id="DurationChart"></canvas>
+            </div>
         </div>
-    </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
-        <span>Monthly average temperature</span>
-        <div>
-            <canvas id="LineChart"></canvas>
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last 7 days average temperature</span>
+            <div>
+                <canvas id="TemperatureChart"></canvas>
+            </div>
         </div>
-    </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
-        <span>Weekly average Duration</span>
-        <div>
-            <canvas id="WeeklyDuraChart"></canvas>
+    {% elif timeframe == 'months' %}
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last 4 weeks average temperature</span>
+            <div>
+                <canvas id="DurationChart"></canvas>
+            </div>
         </div>
-    </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
-        <span>Weekly average temperature</span>
-        <div>
-            <canvas id="WeeklyTempChart"></canvas>
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last 4 weeks average duration</span>
+            <div>
+                <canvas id="TemperatureChart"></canvas>
+            </div>
         </div>
-    </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white"></div>
-    <span>Last month average temperature</span>
-    <div>
-        <canvas id="LastMonthTempChart"></canvas>
-    </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white"></div>
-    <span>Last month average duration</span>
-    <div>
-        <canvas id="LastMonthDuraChart"></canvas>
-    </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white"></div>
-    <span>Last 4 months average temperature</span>
-    <div>
-        <canvas id="Last4MonthTempChart"></canvas>
-    </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white"></div>
-    <span>Last 4 months average duration</span>
-    <div>
-        <canvas id="Last4MonthDuraChart"></canvas>
-    </div>
-</div>
+    {% elif timeframe == 'years' %}
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last year duration shower</span>
+            <div>
+                <canvas id="DurationChart"></canvas>
+            </div>
+        </div>
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last year average temperature</span>
+            <div>
+                <canvas id="TemperatureChart"></canvas>
+            </div>
+        </div>
+    {% endif %}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const labelsMonthly = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
+    {% if timeframe == 'weeks' %}
+    const labels = [
+        {% for data in data %}
+            "{{ data[2].strftime("%A") }}",
+        {% endfor %}
     ];
-
-    //This is the label where we will show the data of the last 12 months. Above I said January to December,
-    //but this should also be able to change from November to October. This can be done in 2 ways:
-    //1st case. If still in October, show data from October 2021- September 2022 and change to November 2021- October 2022
-    //when becoming November 1st. 
-    //2nd case. If possible, we can even make it with the dates that we implement,
-    //such that we will have basically from 20-10-2021 to 18-10-2022. In this case we will have a case of 52 weeks/364 days, but 
-    //since we use bar charts for labelsMonthly, this will most likely not work.
-
-    const labelsWeekly = [
-        '12 Oct',
-        '13 Oct',
-        '14 Oct',
-        '15 Oct',
-        '16 Oct',
-        '17 Oct',
-        '18 Oct'
+    {% elif timeframe == 'months' %}
+    const labels = [
+        {% for data in data %}
+            "{{ data[2].strftime("%d") }}-{{ data[2].strftime("%b") }}",
+        {% endfor %}
     ];
-
-//Should show the last 7 days and should actively change when a day has past to in this case 13-10 to 19-10.
-
-    const labelsmonthdaily = [
-        '19 Sept',
-        '20 Sept',
-        '21 Sept',
-        '22 Sept',
-        '23 Sept',
-        '24 Sept',
-        '25 Sept',
-        '26 Sept',
-        '27 Sept',
-        '28 Sept',
-        '29 Sept',
-        '30 Sept',
-        '1 Oct',
-        '2 Oct',
-        '3 Oct',
-        '4 Oct',
-        '5 Oct',
-        '6 Oct',
-        '7 Oct',
-        '8 Oct',
-        '9 Oct',
-        '10 Oct',
-        '11 Oct',
-        '12 Oct',
-        '13 Oct',
-        '14 oct',
-        '15 Oct',
-        '16 Oct',
-        '17 Oct',
-        '18 Oct'
-];
-// This should basically change one day actively when a day has past, just like labels weekly. Here the change would be
-// from 20-09 to 19-10
-    const labelsLast4Months = [
-        'June',
-        'July',
-        'August',
-        'September',
+    {% elif timeframe == 'years' %}
+    const labels = [
+        {% for data in data %}
+            "{{ data[2].strftime("%d") }}-{{ data[2].strftime("%m") }}-{{ data[2].strftime("%Y") }}",
+        {% endfor %}
     ];
-// Should also actively change, in this case June should go away for October when it becomes November 1st. 
+    {% endif %}
 
-    const data = {
-        labels: labelsMonthly,
+    const temperatureData = {
+        labels: labels,
         datasets: [{
-            label: 'Duration in minutes',
-            backgroundColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
+            label: 'Temperature',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [
+                    {% for data in data %}
+                        {{ data[0] }},
+                    {% endfor %}
             ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-
-
-            borderWidth: 1,
-            data: [270,253,292,230,241,209,213,192,209,223,500,222],
-            // Data should show total shower duration in each specific month, given with the order of labelsMonthly
-            // given above. (Bar chart)
+        }]
+    };
+    const durationData = {
+        labels: labels,
+        datasets: [{
+            label: 'Duration',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [{% for data in data %}
+                        {{ data[1] }},
+                    {% endfor %}],
         }]
     };
 
-    const dataMonthlyAvgTemp = {
-        labels: labelsMonthly,
-        datasets: [{
-            label: 'Temperature in Celsius',
-            backgroundColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-
-
-            borderWidth: 1,
-            data: [37.3, 36.4, 34.2, 35.7, 32.3, 30.6, 33.2, 32.6, 28.9, 34.2, 31.6, 30.7]
-            //Avg shower temperature data should be given for each specific month, given with the order of 
-            // labelsMonthly desribed above. (Bar chart)
-        }]
-    }
-
-    const dataWeeklyDura = {
-        labels: labelsWeekly,
-        datasets: [{
-            label: 'Duration in minutes',
-            backgroundColor: ['rgba(54, 162, 235, 1)'],
-            borderColor: ['rgba(54, 162, 235, 1)'],
-            borderWidth: 1,
-            data: [12, 6, 17, 10, 8, 11, 7]
-            // Data should be given for total duration of showering for each specific day, given with the order of 
-            // labelsWeekly described above. (Line chart)
-        }]
-    }
-
-    const dataWeeklyTemp = {
-        labels: labelsWeekly,
-        datasets: [{
-            label: 'Temperature in Celsius',
-            backgroundColor: ['rgba(54, 162, 235, 1)'],
-            borderColor: ['rgba(54, 162, 235, 1)'],
-            borderWidth: 1,
-            data: [34, 34, 32, 36, 31, 29, 32]
-            //Data should be given for Avg shower temperature for each specific day, given with the order of 
-            // labelsWeekly described above. (Line chart)
-        }]
-    }
-
-    const dataMonthDailyDura = {
-        labels: labelsmonthdaily,
-        datasets: [{
-            label: 'Duration in minutes',
-            backgroundColor: ['rgba(54, 162, 235, 1)'],
-            borderColor: ['rgba(54, 162, 235, 1)'],
-            borderWidth: 1,
-            data: [12, 6, 17, 10, 8, 11, 7, 12, 6, 17, 10, 8, 11, 7, 12, 6, 17, 10, 8, 11, 7, 12, 6, 17, 10, 8, 11, 7, 12, 6]
-            //Data should be given for total duration of showering for each specific day, given with the order of 
-            // labelsmonthdaily described above. (line chart)
-        }]
-    }
-
-    const dataMonthDailyTemp = {
-        labels: labelsmonthdaily,
-        datasets: [{
-            label: 'Temperature in Celsius',
-            backgroundColor: ['rgba(54, 162, 235, 1)'],
-            borderColor: ['rgba(54, 162, 235, 1)'],
-            borderWidth: 1,
-            data: [34, 34, 32, 36, 31, 29, 32, 34, 34, 32, 36, 31, 29, 32, 34, 34, 32, 36, 31, 29, 32, 34, 34, 32, 36, 31, 29, 32, 34, 34]
-            //Data should be given for total Avg shower temperature for each specific day, given with the order of 
-            // labelsmonthdaily described above. (Line chart)
-        }]
-    }
-
-    const dataLast4MonthsDura = {
-        labels: labelsLast4Months,
-        datasets: [{
-            label: 'Duration in minutes',
-            backgroundColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)'
-            ],
-            borderWidth: 1,
-            data: [270,253,292,230],
-            // Data should show total shower duration in each specific month, given with the order of labelsLast4Months
-            // described above. (Bar chart)
-        }]
-    };
-
-    const dataLast4MonthsAvgTemp = {
-        labels: labelsLast4Months,
-        datasets: [{
-            label: 'Temperature in Celsius',
-            backgroundColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)'
-            ],
-            borderWidth: 1,
-            data: [34.3, 35.7, 32.2, 33.3]
-            // Data should show Avg shower temps in each specific month, given with the order of labelsLast4Months
-            // described above. (Bar chart)
-        }]
-    };
-
-    const configMonthlyDuration = {
-        type: 'bar',
-        data: data,
+    const temperatureConfig = {
+        type: 'line',
+        data: temperatureData,
         options: {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        beforeLabel: function(tooltipItem) {
-                            return 'Minutes';
-                        }
-                    }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: 50
                 }
             }
         }
     };
-    const configMonthlyAvgTemp = {
-        type: 'bar',
-        data: dataMonthlyAvgTemp,
+    const durationConfig = {
+        type: 'line',
+        data: durationData,
         options: {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        beforeLabel: function(tooltipItem) {
-                            return 'Minutes';
-                        }
-                    }
-                }
-            }
-        }
-    };
-    
-    
-    const configWeeklyDura = {
-        type: 'line',
-        data: dataWeeklyDura,
-    }
-    const configWeeklyTemp = {
-        type: 'line',
-        data: dataWeeklyTemp,
-    }
-    const configMonthDailyDura = {
-        type: 'line',
-        data: dataMonthDailyDura,
-    }
-    const configMonthDailyTemp = {
-        type: 'line',
-        data: dataMonthDailyTemp,
-    }
-    const configLast4MonthsDura = {
-        type: 'bar',
-        data: dataLast4MonthsDura,
-        options: {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        beforeLabel: function(tooltipItem) {
-                            return 'Minutes';
-                        }
-                    }
-                }
-            }
-        }
-    };
-    const configLast4MonthsAvgTemp = {
-        type: 'bar',
-        data: dataLast4MonthsAvgTemp,
-        options: {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        beforeLabel: function(tooltipItem) {
-                            return 'Minutes';
-                        }
-                    }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: 30
                 }
             }
         }
     };
 </script>
 <script>
-    const myChart = new Chart(
-        document.getElementById('myChart'),
-        configMonthlyDuration
+const temperatureChart = new Chart(
+        document.getElementById('TemperatureChart'),
+        temperatureConfig
     );
-    const MonthlyAvgTempChart = new Chart(
-        document.getElementById('LineChart'),
-        configMonthlyAvgTemp
-    );
-    const WeeklyDuraChart = new Chart(
-        document.getElementById('WeeklyDuraChart'),
-        configWeeklyDura
-    );
-    const WeeklyTempChart = new Chart(
-        document.getElementById('WeeklyTempChart'),
-        configWeeklyTemp
-    )
-    const MonthDailyDuraChart = new Chart(
-        document.getElementById('LastMonthDuraChart'),
-        configMonthDailyDura
-    );
-    const MonthDailyTempChart = new Chart(
-        document.getElementById('LastMonthTempChart'),
-        configMonthDailyTemp
-    );
-    
-    const Last4MonthDuraChart = new Chart(
-        document.getElementById('Last4MonthDuraChart'),
-        configLast4MonthsDura
-    );
-    const Last4MonthTempTempChart = new Chart(
-        document.getElementById('Last4MonthTempChart'),
-        configLast4MonthsAvgTemp
+const durationChart = new Chart(
+        document.getElementById('DurationChart'),
+        durationConfig
     );
 </script>
-
-
 {% endblock %}
 
 

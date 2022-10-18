@@ -56,11 +56,9 @@
         </div>
     </div>
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
-        <span>Your current shower time is 8.5 min, which is 0.6 lower than the world average.</span>
+        <span>{{ comparison_string }}</span>
     </div>
 </div>
-        // The 8.5 min and 0.6 should change to your avg shower time of all time or other scale compared to 9.1 minutes
-        // Also lower should me made changeable in case it is higher than average or equal to average.
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const labelsWeekly = [
