@@ -11,11 +11,24 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Query the database
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data")
+    data = cursor.fetchall()
+    mysql.connection.commit()
+    cursor.close()
+    return render_template('index.html', data=data)
 
 @app.route('/statistics')
 def statistics():
-    return render_template('statistics.html')
+    # Query the database
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM raw_data")
+    data = cursor.fetchall()
+    mysql.connection.commit()
+    cursor.close()
+    # Return view rendering the data
+    return render_template('statistics.html', data=data)
 
 @app.route('/feedback')
 def feedback():
