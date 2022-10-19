@@ -6,17 +6,52 @@
 
 {% block body %}
 <div class="flex flex-col py-1 space-y-1.5">
-    <div class="flex flex-row border py-2 text-sm justify-around rounded-sm bg-white">
+    <div class="flex flex-row border py-2 text-sm justify-around bg-white">
         <a href="{{ url_for('statistics', timeframe='days', period=get_date_range('days')) }}" {% if timeframe == 'days' %} class="font-bold" {% endif %}>1d</a>
         <a href="{{ url_for('statistics', timeframe='weeks', period=get_date_range('weeks')) }}" {% if timeframe == 'weeks' %} class="font-bold" {% endif %}>7d</a>
         <a href="{{ url_for('statistics', timeframe='months', period=get_date_range('months')) }}" {% if timeframe == 'months' %} class="font-bold" {% endif %}>4w</a>
         <a href="{{ url_for('statistics', timeframe='years', period=get_date_range('years')) }}" {% if timeframe == 'years' %} class="font-bold" {% endif %}>1y</a>
     </div>
+    <div class="flex flex-row border py-2 space-x-3 text-sm justify-center bg-white">
+        {% if timeframe == 'days' %}
+            <a href="">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd"
+                        d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z"
+                        clip-rule="evenodd" />
+                </svg>
+            </a>
+            <span>{{ data[0][2].strftime("%d-%b-%Y") }}</span>
+            <a href="">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd"
+                        d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z"
+                        clip-rule="evenodd" />
+                </svg>
+            </a>
+        {% else %}
+            <a href="">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd"
+                        d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z"
+                        clip-rule="evenodd" />
+                </svg>
+            </a>
+            <span>{{ data[0][2].strftime("%d-%b-%Y") }} - {{ data[-1][2].strftime("%d-%b-%Y") }}</span>
+            <a href="">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd"
+                        d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z"
+                        clip-rule="evenodd" />
+                </svg>
+            </a>
+        {% endif %}
+    </div>
     <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
         <span>This period</span>
         <div class="flex justify-around px-4 py-1 text-sm">
             <div class="flex flex-col items-center">
-                <span><span class="text-base font-semibold">8.5</span>min</span>
+                <span><span class="text-base font-semibold">28</span>min</span>
                 <span>Average showertime</span>
             </div>
             <div class="flex flex-col items-center">
@@ -25,7 +60,20 @@
             </div>
         </div>
     </div>
+    {{ test }}
     {% if timeframe == 'days' %}
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last day average duration</span>
+            <div>
+                <canvas id="DurationChart"></canvas>
+            </div>
+        </div>
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last day average temperature</span>
+            <div>
+                <canvas id="TemperatureChart"></canvas>
+            </div>
+        </div>
     {% elif timeframe == 'weeks' %}
         <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
             <span>Last 7 days average duration</span>
@@ -70,11 +118,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    {% if timeframe == 'weeks' %}
+    {% if timeframe == 'days' %}
     const labels = [
         {% for data in data %}
-            "{{ data[2].strftime("%A") }}",
+            "{{ data[2].strftime('%a %H:%M') }}",
         {% endfor %}
+    ];
+    {% elif timeframe == 'weeks' %}
+    const labels = [
+            {% for data in data %}
+                "{{ data[2].strftime("%A") }}",
+            {% endfor %}
     ];
     {% elif timeframe == 'months' %}
     const labels = [
@@ -94,8 +148,9 @@
         labels: labels,
         datasets: [{
             label: 'Temperature',
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(81, 172, 197, 1)',
+            borderColor: 'rgba(81, 172, 197, 1)',
+            borderWidth: 1,
             data: [
                     {% for data in data %}
                         {{ data[0] }},
@@ -107,28 +162,31 @@
         labels: labels,
         datasets: [{
             label: 'Duration',
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [{% for data in data %}
+            backgroundColor: 'rgba(81, 172, 197, 1)',
+            borderColor: 'rgba(81, 172, 197, 1)',
+            borderWidth: 1,
+            data: [
+                    {% for data in data %}
                         {{ data[1] }},
-                    {% endfor %}],
+                    {% endfor %}
+            ],
         }]
     };
 
     const temperatureConfig = {
-        type: 'line',
+        type: '{% if timeframe=="days" %}bar{% else %}line{% endif %}',
         data: temperatureData,
         options: {
             scales: {
                 y: {
                     beginAtZero: true,
-                    suggestedMax: 50
+                    suggestedMax: 60
                 }
             }
         }
     };
     const durationConfig = {
-        type: 'line',
+        type: '{% if timeframe=="days" %}bar{% else %}line{% endif %}',
         data: durationData,
         options: {
             scales: {

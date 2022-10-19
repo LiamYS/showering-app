@@ -20,9 +20,9 @@ def index():
     cursor.close()
     # Generate comparison string for template
     if 9.1 - float(data[0][1]) > 0:
-        comparison_string = "Your current shower time is {} min, which is {} min lower than the world average.".format(data[0][1], 9.1 - float(data[0][1]))
+        comparison_string = "Your current shower time is {} min, which is {} min lower than the world average.".format(data[0][1], round(9.1 - float(data[0][1]), 2))
     else:
-        comparison_string = "Your current shower time is {} min, which is {} min higher than the world average.".format(data[0][1], float(data[0][1]) - 9.1)
+        comparison_string = "Your current shower time is {} min, which is {} min higher than the world average.".format(data[0][1], round(float(data[0][1]) - 9.1, 2))
     # Render the template
     return render_template('index.html', data=data, comparison_string=comparison_string)
 
@@ -32,32 +32,31 @@ def statistics(timeframe, period):
     # Query the database on specific timeframes
     if timeframe == 'days':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_now()))
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'weeks':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_now()))
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'months':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('months'), helpers.get_date_now()))
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('months'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'years':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('years'), helpers.get_date_now()))
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('years'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     # Return view rendering the data and return 404 if timeframe is invalid
-    test = "SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_now())
     if timeframe == 'days' or timeframe == 'weeks' or timeframe == 'months' or timeframe == 'years':
-        return render_template('statistics.html', test=test, timeframe=timeframe, period=period, get_date_range=helpers.get_date_range, data=data, strftime=datetime.strftime)
+        return render_template('statistics.html', timeframe=timeframe, period=period, get_date_range=helpers.get_date_range, data=data, strftime=datetime.strftime)
     else:
         return render_template('404.html'), 404
 
