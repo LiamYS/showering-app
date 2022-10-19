@@ -32,25 +32,25 @@ def statistics(timeframe, period):
     # Query the database on specific timeframes
     if timeframe == 'days':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}' ORDER BY date ASC".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'weeks':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM raw_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'months':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('months'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM raw_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('months'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'years':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('years'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM raw_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('years'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
