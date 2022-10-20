@@ -28,11 +28,11 @@ def index():
     if 9.1 - float(data[0][1]) > 0:
         average_usage = 9.1 - float(data[0][1])
         comparison_string = "Your current shower time is {} min, which is {} min lower than the world average.".format(data[0][1], round(average_usage, 2))
-        water_savings = round(((average_usage * 9.46352946)/1000), 2)
+        water_savings = round((average_usage * 9.46352946), 2)
     else:
         average_usage = float(data[0][1]) - 9.1
         comparison_string = "Your current shower time is {} min, which is {} min higher than the world average.".format(data[0][1], round(average_usage, 2))
-        water_savings = "-"
+        water_savings = round((-average_usage * 9.46352946), 2)
     # Render the template
     return render_template('index.html', comparison_string=comparison_string, data=data, daily_data=daily_data, graph_data=graph_data, water_savings=water_savings, strftime=datetime.strftime)
 
