@@ -21,7 +21,7 @@
                         clip-rule="evenodd" />
                 </svg>
             </a>
-            <span>{{ data[0][2].strftime("%d-%b-%Y") }}</span>
+            <span>{% if not data %}-{% else %}{{ data[0][2].strftime("%d-%b-%Y") }}{% endif %}</span>
             <a href="">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                     <path fill-rule="evenodd"
@@ -51,16 +51,15 @@
         <span>This period</span>
         <div class="flex justify-around px-4 py-1 text-sm">
             <div class="flex flex-col items-center">
-                <span><span class="text-base font-semibold">28</span>min</span>
+                <span><span class="text-base font-semibold">{% if average[0][0] == None%}- {% else %}{{ average[0][0] }} {% endif %}</span>min</span>
                 <span>Average showertime</span>
             </div>
             <div class="flex flex-col items-center">
-                <span><span class="text-base font-semibold">34.2</span>&#8451</span>
+                <span><span class="text-base font-semibold">{% if average[0][1] == None%}- {% else %}{{ average[0][1] }} {% endif %}</span>&#8451</span>
                 <span>Average temperature</span>
             </div>
         </div>
     </div>
-    {{ test }}
     {% if timeframe == 'days' %}
         <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
             <span>Last day average duration</span>

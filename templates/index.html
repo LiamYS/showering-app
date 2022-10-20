@@ -20,11 +20,11 @@
         </div>
         <div class="flex justify-around px-4 pb-3 text-sm border-b">
             <div class="flex flex-col items-center">
-                <span><span class="text-base font-semibold">13.4</span>min</span>
+                <span><span class="text-base font-semibold">{% if daily_data[0][0] == None %}- {% else %}{{ data[0][0] }} {% endif %}</span>min</span>
                 <span>Showered today</span>
             </div>
             <div class="flex flex-col items-center">
-                <span><span class="text-base font-bold">35</span>&#8451</span>
+                <span><span class="text-base font-bold">{% if daily_data[0][1] == None %}- {% else %}{{ data[0][1] }} {% endif %}</span>&#8451</span>
                 <span>Average today</span>
             </div>
         </div>
@@ -43,77 +43,93 @@
             </div>
         </div>
     </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
-        <span>Monthly duration shower</span>
-        <div>
-            <canvas id="WeeklyDuraChart"></canvas>
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last 7 days average duration</span>
+            <div>
+                <canvas id="DurationChart"></canvas>
+            </div>
         </div>
-    </div>
-    <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
-        <span>Monthly average temperature</span>
-        <div>
-            <canvas id="WeeklyTempChart"></canvas>
+        <div class="flex flex-col px-3 py-3 border space-y-2 bg-white">
+            <span>Last 7 days average temperature</span>
+            <div>
+                <canvas id="TemperatureChart"></canvas>
+            </div>
         </div>
-    </div>
     <div class="px-3 py-3 border text-sm text-center font-medium bg-white">
         <span>{{ comparison_string }}</span>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const labelsWeekly = [
-        '12 Oct',
-        '13 Oct',
-        '14 Oct',
-        '15 Oct',
-        '16 Oct',
-        '17 Oct',
-        '18 Oct'
+    const labels = [
+        {% for data in graph_data %}
+    "{{ data[2].strftime(" %A") }}",
+        {% endfor %}
     ];
 
-    const dataWeeklyDura = {
-        labels: labelsWeekly,
+    const temperatureData = {
+        labels: labels,
         datasets: [{
-            label: 'Duration in minutes',
-            backgroundColor: ['rgba(81, 172, 197, 1)'],
-            borderColor: ['rgba(81, 172, 197, 1)'],
+            label: 'Temperature',
+            backgroundColor: 'rgba(81, 172, 197, 1)',
+            borderColor: 'rgba(81, 172, 197, 1)',
             borderWidth: 1,
-            data: [12, 6, 17, 10, 8, 11, 7]
-            // Data should be given for total duration of showering for each specific day, given with the order of 
-            // labelsWeekly described above. (Line chart)
+            data: [
+                {% for data in graph_data %}
+                        {{ data[0] }},
+        {% endfor %}
+            ],
         }]
-    }
-
-    const dataWeeklyTemp = {
-        labels: labelsWeekly,
+    };
+    const durationData = {
+        labels: labels,
         datasets: [{
-            label: 'Temperature in Celsius',
-            backgroundColor: ['rgba(81, 172, 197, 1)'],
-            borderColor: ['rgba(81, 172, 197, 1)'],
+            label: 'Duration',
+            backgroundColor: 'rgba(81, 172, 197, 1)',
+            borderColor: 'rgba(81, 172, 197, 1)',
             borderWidth: 1,
-            data: [34, 34, 32, 36, 31, 29, 32]
-            //Data should be given for Avg shower temperature for each specific day, given with the order of 
-            // labelsWeekly described above. (Line chart)
+            data: [
+                {% for data in graph_data %}
+                        {{ data[1] }},
+        {% endfor %}
+            ],
         }]
-    }
+    };
 
-    const configWeeklyDura = {
+    const temperatureConfig = {
         type: 'line',
-        data: dataWeeklyDura,
-    }
-    const configWeeklyTemp = {
+        data: temperatureData,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: 60
+                }
+            }
+        }
+    };
+    const durationConfig = {
         type: 'line',
-        data: dataWeeklyTemp
-    }
+        data: durationData,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: 30
+                }
+            }
+        }
+    };
 </script>
 <script>
-    const WeeklyDuraChart = new Chart(
-        document.getElementById('WeeklyDuraChart'),
-        configWeeklyDura
+    const temperatureChart = new Chart(
+        document.getElementById('TemperatureChart'),
+        temperatureConfig
     );
-    const WeeklyTempChart = new Chart(
-        document.getElementById('WeeklyTempChart'),
-        configWeeklyTemp
-    )
+    const durationChart = new Chart(
+        document.getElementById('DurationChart'),
+        durationConfig
+    );
 </script>
 {% endblock %}
