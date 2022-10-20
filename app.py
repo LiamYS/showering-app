@@ -20,17 +20,21 @@ def index():
     cursor.execute("SELECT ROUND(AVG(temperature), 1), SUM(duration) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
     daily_data = cursor.fetchall()
     mysql.connection.commit()
-    cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}' ORDER BY date ASC".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1), date FROM raw_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
     graph_data = cursor.fetchall()
     mysql.connection.commit()
     cursor.close()
     # Generate comparison string for template
     if 9.1 - float(data[0][1]) > 0:
-        comparison_string = "Your current shower time is {} min, which is {} min lower than the world average.".format(data[0][1], round(9.1 - float(data[0][1]), 2))
+        average_usage = 9.1 - float(data[0][1])
+        comparison_string = "Your current shower time is {} min, which is {} min lower than the world average.".format(data[0][1], round(average_usage, 2))
+        water_savings = round(((average_usage * 9.46352946)/1000), 2)
     else:
-        comparison_string = "Your current shower time is {} min, which is {} min higher than the world average.".format(data[0][1], round(float(data[0][1]) - 9.1, 2))
+        average_usage = float(data[0][1]) - 9.1
+        comparison_string = "Your current shower time is {} min, which is {} min higher than the world average.".format(data[0][1], round(average_usage, 2))
+        water_savings = "-"
     # Render the template
-    return render_template('index.html', comparison_string=comparison_string, data=data, daily_data=daily_data, graph_data=graph_data, strftime=datetime.strftime)
+    return render_template('index.html', comparison_string=comparison_string, data=data, daily_data=daily_data, graph_data=graph_data, water_savings=water_savings, strftime=datetime.strftime)
 
 @app.route('/statistics/', defaults={'timeframe': 'days', 'period': helpers.get_date_range('days')})
 @app.route('/statistics/timeframe/<string:timeframe>/period/<period>')
@@ -74,7 +78,7 @@ def statistics(timeframe, period):
         cursor.close()
     # Return view rendering the data and return 404 if timeframe is invalid
     if timeframe == 'days' or timeframe == 'weeks' or timeframe == 'months' or timeframe == 'years':
-        return render_template('statistics.html', timeframe=timeframe, period=period, get_date_range=helpers.get_date_range, strftime=datetime.strftime, data=data, average=average)
+        return render_template('statistics.html', timeframe=timeframe, period=period, get_date_range=helpers.get_date_range, strftime=datetime.strftime, today=datetime.today(), data=data, average=average)
     else:
         return render_template('404.html'), 404
 

@@ -21,7 +21,7 @@
                         clip-rule="evenodd" />
                 </svg>
             </a>
-            <span>{% if not data %}-{% else %}{{ data[0][2].strftime("%d-%b-%Y") }}{% endif %}</span>
+            <span>{% if not data %}{{ today.strftime("%d-%b-%Y") }}{% else %}{{ data[0][2].strftime("%d-%b-%Y") }}{% endif %}</span>
             <a href="">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                     <path fill-rule="evenodd"
