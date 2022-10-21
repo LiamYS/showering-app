@@ -20,11 +20,11 @@
         </div>
         <div class="flex justify-around px-4 pb-3 text-sm border-b">
             <div class="flex flex-col items-center">
-                <span><span class="text-base font-semibold">{% if daily_data[0][0] == None %}- {% else %}{{ data[0][0] }} {% endif %}</span>min</span>
+                <span><span class="text-base font-semibold">{% if daily_data[0][1] == None %}- {% else %}{{ daily_data[0][1] }} {% endif %}</span>min</span>
                 <span>Showered today</span>
             </div>
             <div class="flex flex-col items-center">
-                <span><span class="text-base font-bold">{% if daily_data[0][1] == None %}- {% else %}{{ data[0][1] }} {% endif %}</span>&#8451</span>
+                <span><span class="text-base font-bold">{% if daily_data[0][0] == None %}- {% else %}{{ daily_data[0][0] }} {% endif %}</span>&#8451</span>
                 <span>Avg today</span>
             </div>
         </div>

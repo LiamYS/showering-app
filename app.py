@@ -84,7 +84,26 @@ def statistics(timeframe, period):
 
 @app.route('/feedback')
 def feedback():
-    return render_template('feedback.html')
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data")
+    data = cursor.fetchall()
+    mysql.connection.commit()
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
+    this_week_average = cursor.fetchall()
+    mysql.connection.commit()
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks', datetime.strptime(helpers.get_date_range('weeks'), '%Y-%m-%d')), helpers.get_date_range('weeks')))
+    last_week_average = cursor.fetchall()    
+    mysql.connection.commit()
+    cursor.close()
+    if 9.1 - float(data[0][1]) > 0:
+        average_usage = 9.1 - float(data[0][1])
+        comparison_string = "Your current shower time is {} min, which is {} min lower than the world average.".format(data[0][1], round(average_usage, 2))
+    else:
+        average_usage = float(data[0][1]) - 9.1
+        comparison_string = "Your current shower time is {} min, which is {} min higher than the world average.".format(data[0][1], round(average_usage, 2))
+    weeks_compared_temperature = this_week_average[0][0] - last_week_average[0][0]
+    weeks_compared_duration = this_week_average[0][1] - last_week_average[0][1]
+    return render_template('feedback.html', comparison_string=comparison_string, weeks_compared_temperature=weeks_compared_temperature, weeks_compared_duration=weeks_compared_duration)
 
 @app.route('/about')
 def about():
