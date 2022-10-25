@@ -12,15 +12,18 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
+    # Data cleaning
+    exec(open('Data.py').read())
+
     # Query the database
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data")
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM cleaned_data")
     data = cursor.fetchall()
     mysql.connection.commit()
-    cursor.execute("SELECT ROUND(AVG(temperature), 1), SUM(duration) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), SUM(duration) FROM cleaned_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
     daily_data = cursor.fetchall()
     mysql.connection.commit()
-    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1), date FROM raw_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1), date FROM cleaned_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
     graph_data = cursor.fetchall()
     mysql.connection.commit()
     cursor.close()
@@ -39,40 +42,43 @@ def index():
 @app.route('/statistics/', defaults={'timeframe': 'days', 'period': helpers.get_date_range('days')})
 @app.route('/statistics/timeframe/<string:timeframe>/period/<period>')
 def statistics(timeframe, period):
+    # Data cleaning
+    exec(open('Data.py').read())
+
     # Query the database on specific timeframes
     if timeframe == 'days':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT temperature, duration, date FROM raw_data WHERE date BETWEEN '{}' AND '{}' ORDER BY date ASC".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT temperature, duration, date FROM cleaned_data WHERE date BETWEEN '{}' AND '{}' ORDER BY date ASC".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
-        cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM cleaned_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('days'), helpers.get_date_tomorrow()))
         average = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'weeks':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM raw_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM cleaned_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
-        cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM cleaned_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
         average = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'months':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM raw_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('months'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM cleaned_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('months'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
-        cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('months'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM cleaned_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('months'), helpers.get_date_tomorrow()))
         average = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
     elif timeframe == 'years':
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM raw_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('years'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT AVG(temperature), AVG(duration), date FROM cleaned_data WHERE date BETWEEN '{}' AND '{}' GROUP BY day(date) ORDER BY date ASC".format(helpers.get_date_range('years'), helpers.get_date_tomorrow()))
         data = cursor.fetchall()
         mysql.connection.commit()
-        cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('years'), helpers.get_date_tomorrow()))
+        cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM cleaned_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('years'), helpers.get_date_tomorrow()))
         average = cursor.fetchall()
         mysql.connection.commit()
         cursor.close()
@@ -84,14 +90,17 @@ def statistics(timeframe, period):
 
 @app.route('/feedback')
 def feedback():
+    # Data cleaning
+    exec(open('Data.py').read())
+
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data")
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM cleaned_data")
     data = cursor.fetchall()
     mysql.connection.commit()
-    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM cleaned_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks'), helpers.get_date_tomorrow()))
     this_week_average = cursor.fetchall()
     mysql.connection.commit()
-    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM raw_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks', datetime.strptime(helpers.get_date_range('weeks'), '%Y-%m-%d')), helpers.get_date_range('weeks')))
+    cursor.execute("SELECT ROUND(AVG(temperature), 1), ROUND(AVG(duration), 1) FROM cleaned_data WHERE date BETWEEN '{}' AND '{}'".format(helpers.get_date_range('weeks', datetime.strptime(helpers.get_date_range('weeks'), '%Y-%m-%d')), helpers.get_date_range('weeks')))
     last_week_average = cursor.fetchall()    
     mysql.connection.commit()
     cursor.close()
@@ -120,9 +129,6 @@ def data():
     temperature = request_data['temperature']
     duration = request_data['time']
     date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    # Data cleaning
-    exec(open('Data.py').read())
 
     # Insert data into the database
     cursor = mysql.connection.cursor()

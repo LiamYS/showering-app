@@ -6,19 +6,24 @@ CONFIG = {
     'database':'showering-app',
     'autocommit':True
 }
-mydb = mysql.connector.connect(**CONFIG)
-if mydb.is_connected():
-    print("Connected")
 
+mydb = mysql.connector.connect(**CONFIG)
 mycursor = mydb.cursor()
 
-mycursor.execute("SELECT * FROM raw_data")
-print(mycursor.fetchall())
+QUERY_UPDATE = """
+    DROP TABLE IF EXISTS cleaned_data;
+"""
+
+mycursor.execute(QUERY_UPDATE)
+mycursor.close()
+
+mydb = mysql.connector.connect(**CONFIG)
+mycursor = mydb.cursor()
 
 QUERY_COPY = """
     CREATE TABLE IF NOT EXISTS cleaned_data AS
-    SELECT session_id, temperature, duration, date
-    FROM raw_data;
+        SELECT session_id, temperature, duration, date
+        FROM raw_data;
     """
 
 mycursor.execute(QUERY_COPY)
@@ -45,3 +50,15 @@ QUERY_REMOVE_DUPLICATE = """
 
 mycursor.execute(QUERY_REMOVE_DUPLICATE)
 mycursor.close()
+
+mydb = mysql.connector.connect(**CONFIG)
+mycursor = mydb.cursor()
+
+QUERY_REMOVE_WEIRD = """
+    DELETE FROM cleaned_data 
+    WHERE temperature < 0 OR temperature > 55 OR duration < 1 OR duration > 120;
+"""
+
+mycursor.execute(QUERY_REMOVE_WEIRD)
+mycursor.close()
+
