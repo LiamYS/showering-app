@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/LiamYS/showering-app">
-    <img href="static/images/logo.PNG" alt="h20overuse_logo" />
+    ![H20 Overuse](/static/images/logo.PNG?raw=true "Optional Title")
   </a>
 
 <h3 align="center">H20 Overuse</h3>
