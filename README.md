@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/LiamYS/onlinekozijnen">
+  <a href="https://github.com/LiamYS/showering-app">
     <img href="static/images/logo.PNG" alt="h20overuse_logo" />
   </a>
 
