@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/LiamYS/onlinekozijnen">
-    <img href="static/images/logo.png" alt="h20overuse_logo" />
+    <img href="static/images/logo.PNG" alt="h20overuse_logo" />
   </a>
 
 <h3 align="center">H20 Overuse</h3>
@@ -64,7 +64,7 @@
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[Flask.com]: https://img.shields.io/badge/flask-%2338B2AC.svg?style=for-the-badge&logo=flask&logoColor=white
+[Flask.com]: https://img.shields.io/badge/flask-%2338B23D.svg?style=for-the-badge&logo=flask&logoColor=white
 [Flask-url]: https://flask.palletsprojects.com/en/2.2.x/
 [Tailwindcss.com]: https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white
 [Tailwind-url]: https://tailwindcss.com
